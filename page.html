@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ranking e Recompensas - Cultiv</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Ícones do Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- CSS Personalizado -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #000000, #003300);
+        color: #ffffff;
+        font-family: "Arial", sans-serif;
+        margin: 0;
+      }
+      .navbar {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 0;
+      }
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .sidebar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
+        width: 250px;
+        transition: transform 0.3s ease;
+      }
+      .sidebar .nav-link {
+        color: #ffffff;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .sidebar .nav-link i {
+        margin-right: 10px;
+      }
+      .main-content {
+        margin-left: 270px; /* Margem para o Sidebar */
+        padding: 20px;
+        transition: margin 0.3s ease;
+      }
+      .ranking-section {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .ranking-section h3 {
+        color: #00cc66;
+        margin-bottom: 20px;
+      }
+      .ranking-section ul {
+        list-style: none;
+        padding: 0;
+      }
+      .ranking-section li {
+        padding: 10px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .ranking-section .medal {
+        font-size: 1.5rem;
+      }
+      .ranking-section .medal.gold {
+        color: #ffd700; /* Ouro */
+      }
+      .ranking-section .medal.silver {
+        color: #c0c0c0; /* Prata */
+      }
+      .ranking-section .medal.bronze {
+        color: #cd7f32; /* Bronze */
+      }
+      .rewards-section {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+      }
+      .rewards-section h3 {
+        color: #00cc66;
+        margin-bottom: 20px;
+      }
+      .rewards-section .reward-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+      }
+      .rewards-section .reward-card:hover {
+        transform: translateY(-5px);
+      }
+      .rewards-section .reward-card h5 {
+        color: #00cc66;
+        margin-bottom: 10px;
+      }
+      .rewards-section .reward-card p {
+        color: #cccccc;
+      }
+      .rewards-section .reward-card .points {
+        font-size: 1.2rem;
+        color: #00cc66;
+        margin: 10px 0;
+      }
+      .rewards-section .reward-card button {
+        background: linear-gradient(135deg, #00cc66, #009933);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .rewards-section .reward-card button:hover {
+        background: linear-gradient(135deg, #009933, #00cc66);
+      }
+      .confirmation-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .confirmation-section {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        width: 90%;
+        max-width: 400px;
+        text-align: center;
+      }
+      .confirmation-section h5 {
+        color: #00cc66;
+        margin-bottom: 15px;
+      }
+      .confirmation-section p {
+        color: #cccccc;
+        margin-bottom: 20px;
+      }
+      .confirmation-section button {
+        background: linear-gradient(135deg, #00cc66, #009933);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-right: 10px;
+      }
+      .confirmation-section button:hover {
+        background: linear-gradient(135deg, #009933, #00cc66);
+      }
+      .confirmation-section button.cancel {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .confirmation-section button.cancel:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-seedling"></i> Cultiv
+        </a>
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="./page.html">
+            <i class="fas fa-home"></i> Início
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./test.html">
+            <i class="fas fa-tint"></i> Monitoramento
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./mercado.html">
+            <i class="fas fa-shopping-cart"></i> Marketplace
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./chat.html">
+            <i class="fas fa-users"></i> Comunidade
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content" id="mainContent">
+      <!-- Seção de Ranking -->
+      <div class="ranking-section">
+        <h3>Ranking de Produtores</h3>
+        <div class="mb-3">
+          <label for="region-filter" class="form-label"
+            >Filtrar por Região:</label
+          >
+          <select
+            class="form-select"
+            id="region-filter"
+            onchange="filterRanking()"
+          >
+            <option value="all">Todas as Regiões</option>
+            <option value="norte">Norte</option>
+            <option value="nordeste">Nordeste</option>
+            <option value="centro-oeste">Centro-Oeste</option>
+            <option value="sudeste">Sudeste</option>
+            <option value="sul">Sul</option>
+          </select>
+        </div>
+        <ul id="ranking-list">
+          <!-- Ranking será carregado dinamicamente aqui -->
+        </ul>
+      </div>
+
+      <!-- Seção de Recompensas -->
+      <div class="rewards-section">
+        <h3>Recompensas Disponíveis</h3>
+        <div class="row" id="rewards-list">
+          <!-- Recompensas serão carregadas dinamicamente aqui -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay e Seção de Confirmação -->
+    <div class="confirmation-overlay" id="confirmationOverlay">
+      <div class="confirmation-section">
+        <h5 id="confirmation-title"></h5>
+        <p id="confirmation-message"></p>
+        <button id="confirm-button">Confirmar</button>
+        <button class="cancel" onclick="closeConfirmation()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script de Interatividade -->
+    <script>
+      // Dados fictícios do ranking
+      const ranking = [
+        { name: "João Silva", points: 1200, medal: "gold", region: "sul" },
+        {
+          name: "Maria Souza",
+          points: 950,
+          medal: "silver",
+          region: "sudeste",
+        },
+        {
+          name: "Carlos Oliveira",
+          points: 800,
+          medal: "bronze",
+          region: "norte",
+        },
+        { name: "Ana Costa", points: 750, region: "nordeste" },
+        { name: "Pedro Santos", points: 700, region: "centro-oeste" },
+      ];
+
+      // Dados fictícios das recompensas
+      const rewards = [
+        {
+          title: "Desconto em Combustível",
+          description: "10% de desconto em gasolina ou diesel.",
+          points: 500,
+        },
+        {
+          title: "Cupom de Insumos Agrícolas",
+          description: "15% de desconto em sementes e fertilizantes.",
+          points: 300,
+        },
+        {
+          title: "Cashback em Empresas Parceiras",
+          description: "5% de cashback em compras.",
+          points: 400,
+        },
+      ];
+
+      // Pontos do usuário (simulação)
+      let userPoints = 600; // Exemplo: usuário tem 600 pontos
+
+      // Função para renderizar o ranking
+      function renderRanking(filteredRanking) {
+        const rankingList = document.getElementById("ranking-list");
+        rankingList.innerHTML = (filteredRanking || ranking)
+          .map(
+            (user, index) => `
+          <li>
+            <span>${index + 1}. ${user.name}</span>
+            <span>${user.points} pontos</span>
+            ${
+              user.medal
+                ? `<i class="fas fa-medal medal ${user.medal}"></i>`
+                : ""
+            }
+            <button class="btn btn-sm btn-outline-success" onclick="openChat('${
+              user.name
+            }')">
+              <i class="fas fa-comment"></i> Chat
+            </button>
+          </li>
+        `
+          )
+          .join("");
+      }
+
+      // Função para filtrar o ranking por região
+      function filterRanking() {
+        const region = document.getElementById("region-filter").value;
+        const filteredRanking =
+          region === "all"
+            ? ranking
+            : ranking.filter((user) => user.region === region);
+        renderRanking(filteredRanking);
+      }
+
+      // Função para abrir o chat com o produtor
+      function openChat(producerName) {
+        window.location.href = `./chat.html`;
+      }
+
+      // Função para renderizar as recompensas
+      function renderRewards() {
+        const rewardsList = document.getElementById("rewards-list");
+        rewardsList.innerHTML = rewards
+          .map(
+            (reward) => `
+          <div class="col-md-4">
+            <div class="reward-card">
+              <h5>${reward.title}</h5>
+              <p>${reward.description}</p>
+              <div class="points">${reward.points} pontos</div>
+              <button onclick="redeemReward('${reward.title}', ${reward.points})">Resgatar</button>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Função para resgatar uma recompensa
+      function redeemReward(rewardTitle, requiredPoints) {
+        const confirmationOverlay = document.getElementById(
+          "confirmationOverlay"
+        );
+        const confirmationTitle = document.getElementById("confirmation-title");
+        const confirmationMessage = document.getElementById(
+          "confirmation-message"
+        );
+        const confirmButton = document.getElementById("confirm-button");
+
+        if (userPoints >= requiredPoints) {
+          confirmationTitle.textContent = "Confirmar Resgate";
+          confirmationMessage.textContent = `Você tem ${userPoints} pontos. Deseja resgatar "${rewardTitle}" por ${requiredPoints} pontos?`;
+          confirmButton.onclick = () =>
+            confirmRedeem(rewardTitle, requiredPoints);
+        } else {
+          confirmationTitle.textContent = "Pontos Insuficientes";
+          confirmationMessage.textContent = `Você precisa de ${requiredPoints} pontos para resgatar "${rewardTitle}". Você tem apenas ${userPoints} pontos.`;
+          confirmButton.style.display = "none";
+        }
+
+        confirmationOverlay.style.display = "flex";
+      }
+
+      // Função para confirmar o resgate
+      function confirmRedeem(rewardTitle, requiredPoints) {
+        userPoints -= requiredPoints; // Deduz os pontos
+        alert(`Recompensa "${rewardTitle}" resgatada com sucesso!`);
+        closeConfirmation();
+        renderRewards(); // Atualiza a lista de recompensas
+      }
+
+      // Função para fechar a div de confirmação
+      function closeConfirmation() {
+        const confirmationOverlay = document.getElementById(
+          "confirmationOverlay"
+        );
+        confirmationOverlay.style.display = "none";
+      }
+
+      // Função para alternar a sidebar em dispositivos móveis
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        sidebar.classList.toggle("active");
+        mainContent.classList.toggle("active");
+      }
+
+      // Renderizar o ranking e as recompensas ao carregar a página
+      renderRanking();
+      renderRewards();
+    </script>
+  </body>
+</html>

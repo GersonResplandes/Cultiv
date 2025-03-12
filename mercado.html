@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Marketplace - Cultiv</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Ícones do Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- CSS Personalizado -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #000000, #003300);
+        color: #ffffff;
+        font-family: "Arial", sans-serif;
+        margin: 0;
+      }
+      .navbar {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 0;
+      }
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .sidebar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
+        width: 250px;
+        transition: transform 0.3s ease;
+      }
+      .sidebar .nav-link {
+        color: #ffffff;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .sidebar .nav-link i {
+        margin-right: 10px;
+      }
+      .main-content {
+        margin-left: 270px; /* Margem para o Sidebar */
+        padding: 20px;
+        transition: margin 0.3s ease;
+      }
+      .search-bar {
+        margin-bottom: 20px;
+      }
+      .search-bar input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+      .filters {
+        margin-bottom: 20px;
+      }
+      .filters .btn {
+        margin-right: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #ffffff;
+      }
+      .filters .btn.active {
+        background: linear-gradient(135deg, #00cc66, #009933);
+      }
+      .product-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+      }
+      .product-card:hover {
+        transform: translateY(-5px);
+      }
+      .product-card img {
+        width: 100%;
+        height: 200px; /* Altura fixa */
+        object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
+        border-radius: 10px;
+      }
+      .product-card h5 {
+        margin-top: 10px;
+        color: #00cc66;
+      }
+      .product-card p {
+        color: #cccccc;
+      }
+      .product-card .price {
+        font-size: 1.2rem;
+        color: #00cc66;
+        margin: 10px 0;
+      }
+      .product-card .btn {
+        background: linear-gradient(135deg, #00cc66, #009933);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-right: 10px; /* Espaço entre os botões */
+      }
+      .product-card .btn:hover {
+        background: linear-gradient(135deg, #009933, #00cc66);
+      }
+      .details-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+      }
+      .details-section {
+        background: linear-gradient(135deg, #003300, #003300);
+        border-radius: 15px;
+        padding: 20px;
+        width: 90%;
+        max-width: 600px;
+        text-align: left;
+      }
+      .details-section h5 {
+        color: #00cc66;
+        margin-bottom: 15px;
+      }
+      .details-section img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 15px;
+      }
+      .details-section p {
+        color: #cccccc;
+        margin-bottom: 10px;
+      }
+      .details-section .specifications {
+        margin-top: 20px;
+      }
+      .details-section .specifications h6 {
+        color: #00cc66;
+        margin-bottom: 10px;
+      }
+      .details-section .specifications ul {
+        list-style: none;
+        padding: 0;
+      }
+      .details-section .specifications li {
+        margin-bottom: 5px;
+      }
+      .cart-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .cart-section {
+        background: linear-gradient(135deg, #003300, #003300);
+        border-radius: 15px;
+        padding: 20px;
+        width: 90%;
+        max-width: 500px;
+        text-align: center;
+      }
+      .cart-section h5 {
+        color: #00cc66;
+        margin-bottom: 15px;
+      }
+      .cart-section ul {
+        list-style: none;
+        padding: 0;
+      }
+      .cart-section li {
+        padding: 10px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+      }
+      .cart-section button {
+        background: linear-gradient(135deg, #00cc66, #009933);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-right: 10px;
+      }
+      .cart-section button:hover {
+        background: linear-gradient(135deg, #009933, #00cc66);
+      }
+      .product-form-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .product-form-section {
+        background: linear-gradient(135deg, #003300, #003300);
+        border-radius: 15px;
+        padding: 20px;
+        width: 90%;
+        max-width: 500px;
+        text-align: left;
+      }
+      .product-form-section h5 {
+        color: #00cc66;
+        margin-bottom: 15px;
+      }
+      .product-form-section .form-group {
+        margin-bottom: 15px;
+      }
+      .product-form-section label {
+        display: block;
+        margin-bottom: 5px;
+        color: #00cc66;
+      }
+      .product-form-section input,
+      .product-form-section textarea,
+      .product-form-section select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+      .product-form-section button {
+        background: linear-gradient(135deg, #00cc66, #009933);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-right: 10px;
+      }
+      .product-form-section button:hover {
+        background: linear-gradient(135deg, #009933, #00cc66);
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-seedling"></i> Cultiv
+        </a>
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="d-flex align-items-center">
+          <a class="navbar-brand" href="#" onclick="openProductForm()">
+            <i class="fas fa-plus"></i> Publicar Produto
+          </a>
+          <a class="navbar-brand" href="#" onclick="openCart()">
+            <i class="fas fa-shopping-cart"></i> Carrinho
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="./page.html">
+            <i class="fas fa-home"></i> Início
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./test.html">
+            <i class="fas fa-tint"></i> Monitoramento
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="./mercado.html">
+            <i class="fas fa-shopping-cart"></i> Marketplace
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./chat.html">
+            <i class="fas fa-users"></i> Comunidade
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content" id="mainContent">
+      <!-- Barra de Pesquisa -->
+      <div class="search-bar">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="🔍 Pesquisar produtos..."
+          oninput="filterProducts()"
+        />
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters">
+        <button class="btn active" onclick="filterByCategory('all')">
+          <i class="fas fa-filter"></i> Todos
+        </button>
+        <button class="btn" onclick="filterByCategory('sementes')">
+          <i class="fas fa-seedling"></i> Sementes
+        </button>
+        <button class="btn" onclick="filterByCategory('fertilizantes')">
+          <i class="fas fa-leaf"></i> Fertilizantes
+        </button>
+        <button class="btn" onclick="filterByCategory('equipamentos')">
+          <i class="fas fa-tractor"></i> Equipamentos
+        </button>
+        <button class="btn" onclick="filterByCategory('outros')">
+          <i class="fas fa-ellipsis-h"></i> Outros
+        </button>
+      </div>
+
+      <!-- Lista de Produtos -->
+      <div class="row" id="product-list">
+        <!-- Produtos serão carregados dinamicamente aqui -->
+      </div>
+    </div>
+
+    <!-- Overlay e Seção de Detalhes do Produto -->
+    <div class="details-overlay" id="detailsOverlay">
+      <div class="details-section">
+        <h5 id="details-title"></h5>
+        <img id="details-image" src="" alt="Imagem do Produto" />
+        <p id="details-description"></p>
+        <div class="specifications">
+          <h6>Especificações Técnicas</h6>
+          <ul id="details-specifications"></ul>
+        </div>
+        <button onclick="closeDetails()">Fechar</button>
+      </div>
+    </div>
+
+    <!-- Overlay e Seção do Carrinho -->
+    <div class="cart-overlay" id="cartOverlay">
+      <div class="cart-section">
+        <h5>Carrinho de Compras</h5>
+        <ul id="cart-items">
+          <!-- Itens do carrinho serão carregados dinamicamente aqui -->
+        </ul>
+        <button onclick="checkout()">Finalizar Compra</button>
+        <button onclick="closeCart()">Fechar</button>
+      </div>
+    </div>
+
+    <!-- Overlay e Seção de Publicação de Produto -->
+    <div class="product-form-overlay" id="productFormOverlay">
+      <div class="product-form-section">
+        <h5>Publicar Produto</h5>
+        <form id="productForm">
+          <div class="form-group">
+            <label for="productTitle">Título do Produto</label>
+            <input type="text" id="productTitle" required />
+          </div>
+          <div class="form-group">
+            <label for="productDescription">Descrição</label>
+            <textarea id="productDescription" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="productImage">Imagem do Produto</label>
+            <input type="text" id="productImage" required />
+          </div>
+          <div class="form-group">
+            <label for="productCategory">Categoria</label>
+            <select id="productCategory" required>
+              <option value="sementes">Sementes</option>
+              <option value="fertilizantes">Fertilizantes</option>
+              <option value="equipamentos">Equipamentos</option>
+              <option value="outros">Outros</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="productPrice">Preço</label>
+            <input type="number" id="productPrice" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label for="productSpecifications">Especificações Técnicas</label>
+            <textarea id="productSpecifications" required></textarea>
+          </div>
+          <button type="submit">Publicar</button>
+          <button type="button" onclick="closeProductForm()">Cancelar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script de Interatividade -->
+    <script>
+      // Dados fictícios dos produtos
+      let products = [
+        {
+          id: 1,
+          image: "./img/sementes.webp",
+          title: "Sementes de Milho",
+          description: "Sementes de alta qualidade para plantio.",
+          category: "sementes",
+          price: 50.0,
+          specifications: ["Peso: 1kg", "Tipo: Híbrido", "Germinação: 95%"],
+        },
+        {
+          id: 2,
+          image: "./img/fertilizante.png",
+          title: "Fertilizante Orgânico",
+          description: "Fertilizante natural para melhorar a produtividade.",
+          category: "fertilizantes",
+          price: 120.0,
+          specifications: [
+            "Peso: 5kg",
+            "Composto: Orgânico",
+            "Duração: 3 meses",
+          ],
+        },
+        {
+          id: 3,
+          image: "./img/trator.jpeg",
+          title: "Trator Agrícola",
+          description: "Trator usado em ótimo estado.",
+          category: "equipamentos",
+          price: 45000.0,
+          specifications: [
+            "Marca: John Deere",
+            "Ano: 2018",
+            "Horas de Uso: 500h",
+          ],
+        },
+      ];
+
+      // Carrinho de compras
+      let cart = [];
+
+      // Função para renderizar os produtos
+      function renderProducts(filteredProducts = products) {
+        const productList = document.getElementById("product-list");
+        productList.innerHTML = filteredProducts
+          .map(
+            (product) => `
+          <div class="col-md-4">
+            <div class="product-card">
+              <img src="${product.image}" alt="${product.title}" />
+              <h5>${product.title}</h5>
+              <p>${product.description}</p>
+              <div class="price">R$ ${product.price.toFixed(2)}</div>
+              <button class="btn" onclick="viewProductDetails(${product.id})">
+                <i class="fas fa-eye"></i> Ver Detalhes
+              </button>
+              <button class="btn" onclick="addToCart(${product.id})">
+                <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+              </button>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Função para visualizar detalhes do produto
+      function viewProductDetails(productId) {
+        const product = products.find((p) => p.id === productId);
+        const detailsOverlay = document.getElementById("detailsOverlay");
+        const detailsTitle = document.getElementById("details-title");
+        const detailsImage = document.getElementById("details-image");
+        const detailsDescription = document.getElementById(
+          "details-description"
+        );
+        const detailsSpecifications = document.getElementById(
+          "details-specifications"
+        );
+
+        detailsTitle.textContent = product.title;
+        detailsImage.src = product.image;
+        detailsDescription.textContent = product.description;
+        detailsSpecifications.innerHTML = product.specifications
+          .map((spec) => `<li>${spec}</li>`)
+          .join("");
+
+        detailsOverlay.style.display = "flex";
+      }
+
+      // Função para fechar os detalhes do produto
+      function closeDetails() {
+        const detailsOverlay = document.getElementById("detailsOverlay");
+        detailsOverlay.style.display = "none";
+      }
+
+      // Função para adicionar produto ao carrinho
+      function addToCart(productId) {
+        const product = products.find((p) => p.id === productId);
+        cart.push(product);
+        alert(`${product.title} adicionado ao carrinho!`);
+        renderCart();
+      }
+
+      // Função para renderizar o carrinho
+      function renderCart() {
+        const cartItems = document.getElementById("cart-items");
+        cartItems.innerHTML = cart
+          .map(
+            (item) => `
+          <li>
+            ${item.title} - R$ ${item.price.toFixed(2)}
+          </li>
+        `
+          )
+          .join("");
+      }
+
+      // Função para abrir o carrinho
+      function openCart() {
+        const cartOverlay = document.getElementById("cartOverlay");
+        cartOverlay.style.display = "flex";
+      }
+
+      // Função para fechar o carrinho
+      function closeCart() {
+        const cartOverlay = document.getElementById("cartOverlay");
+        cartOverlay.style.display = "none";
+      }
+
+      // Função para finalizar a compra
+      function checkout() {
+        if (cart.length > 0) {
+          alert("Compra finalizada com sucesso!");
+          cart = [];
+          renderCart();
+          closeCart();
+        } else {
+          alert("O carrinho está vazio!");
+        }
+      }
+
+      // Função para filtrar produtos por categoria
+      function filterByCategory(category) {
+        let filteredProducts = products;
+        if (category !== "all") {
+          filteredProducts = products.filter(
+            (product) => product.category === category
+          );
+        }
+        renderProducts(filteredProducts);
+      }
+
+      // Função para filtrar produtos por pesquisa
+      function filterProducts() {
+        const searchTerm = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        const filteredProducts = products.filter(
+          (product) =>
+            product.title.toLowerCase().includes(searchTerm) ||
+            product.description.toLowerCase().includes(searchTerm)
+        );
+        renderProducts(filteredProducts);
+      }
+
+      // Função para alternar a sidebar em dispositivos móveis
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        sidebar.classList.toggle("active");
+        mainContent.classList.toggle("active");
+      }
+
+      // Função para abrir o formulário de publicação de produto
+      function openProductForm() {
+        const productFormOverlay =
+          document.getElementById("productFormOverlay");
+        productFormOverlay.style.display = "flex";
+      }
+
+      // Função para fechar o formulário de publicação de produto
+      function closeProductForm() {
+        const productFormOverlay =
+          document.getElementById("productFormOverlay");
+        productFormOverlay.style.display = "none";
+      }
+
+      // Função para submeter o formulário e adicionar o novo produto
+      document
+        .getElementById("productForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const newProduct = {
+            id: products.length + 1,
+            title: document.getElementById("productTitle").value,
+            description: document.getElementById("productDescription").value,
+            image: document.getElementById("productImage").value,
+            category: document.getElementById("productCategory").value,
+            price: parseFloat(document.getElementById("productPrice").value),
+            specifications: document
+              .getElementById("productSpecifications")
+              .value.split("\n"),
+          };
+
+          products.push(newProduct);
+          renderProducts();
+          closeProductForm();
+          alert("Produto publicado com sucesso!");
+        });
+
+      // Renderizar os produtos ao carregar a página
+      renderProducts();
+    </script>
+  </body>
+</html>

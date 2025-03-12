@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comunidade de Práticas - Cultiv</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Ícones do Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- CSS Personalizado -->
+    <style>
+      body {
+        background: linear-gradient(135deg, #000000, #003300);
+        color: #ffffff;
+        font-family: "Arial", sans-serif;
+        margin: 0;
+      }
+      .navbar {
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 0;
+      }
+      .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .sidebar {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        height: 100vh;
+        position: fixed;
+        width: 250px;
+        transition: transform 0.3s ease;
+      }
+      .sidebar .nav-link {
+        color: #ffffff;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+      .sidebar .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .sidebar .nav-link i {
+        margin-right: 10px;
+      }
+      .main-content {
+        margin-left: 270px;
+        padding: 20px;
+        transition: margin 0.3s ease;
+      }
+      .search-bar {
+        margin-bottom: 20px;
+      }
+      .search-bar input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+      .filters {
+        margin-bottom: 20px;
+      }
+      .filters .btn {
+        margin-right: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #ffffff;
+      }
+      .filters .btn.active {
+        background: linear-gradient(135deg, #00cc66, #009933);
+      }
+      .video-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+      }
+      .video-card:hover {
+        transform: translateY(-5px);
+      }
+      .video-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .video-card h5 {
+        margin-top: 10px;
+        color: #00cc66;
+      }
+      .video-card p {
+        color: #cccccc;
+      }
+      .video-card .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .video-card .actions i {
+        cursor: pointer;
+        margin-right: 10px;
+        transition: color 0.3s ease;
+      }
+      .video-card .actions i:hover {
+        color: #00cc66;
+      }
+      .video-card .actions .like.active {
+        color: #00cc66;
+      }
+      .video-card .actions .comment.active {
+        color: #00cc66;
+      }
+      .upload-overlay,
+      .video-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+      }
+      .upload-section,
+      .video-player {
+        background: linear-gradient(135deg, #003300, #003300);
+        border-radius: 15px;
+        padding: 20px;
+        width: 90%;
+        max-width: 800px;
+        text-align: center;
+      }
+      .video-player video {
+        width: 100%;
+        max-height: 80vh;
+        border-radius: 10px;
+      }
+      .upload-section h5,
+      .video-player h5 {
+        color: #00cc66;
+        margin-bottom: 15px;
+      }
+      .upload-section input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        margin-bottom: 10px;
+      }
+      .upload-section button,
+      .video-player button {
+        background: #00cc66;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      .upload-section button:hover,
+      .video-player button:hover {
+        background: #00cc66;
+      }
+      .upload-section button:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+      }
+      .upload-section .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.active {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-seedling"></i> Cultiv
+        </a>
+        <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="d-flex align-items-center">
+          <a class="navbar-brand" href="#" onclick="openUploadSection()">
+            <i class="fas fa-upload"></i> Compartilhe sua Experiência
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link active" href="./page.html">
+            <i class="fas fa-home"></i> Início
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./test.html">
+            <i class="fas fa-tint"></i> Monitoramento
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./mercado.html">
+            <i class="fas fa-shopping-cart"></i> Marketplace
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="./chat.html">
+            <i class="fas fa-users"></i> Comunidade
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content" id="mainContent">
+      <!-- Barra de Pesquisa -->
+      <div class="search-bar">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="🔍 Pesquisar vídeos..."
+          oninput="filterVideos()"
+        />
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters">
+        <button class="btn active" onclick="filterByDuration('all')">
+          <i class="fas fa-filter"></i> Todos
+        </button>
+        <button class="btn" onclick="filterByDuration('short')">
+          <i class="fas fa-clock"></i> Curtos (< 5 min)
+        </button>
+        <button class="btn" onclick="filterByDuration('long')">
+          <i class="fas fa-clock"></i> Longos (> 5 min)
+        </button>
+      </div>
+
+      <!-- Lista de Vídeos -->
+      <div class="row" id="video-list">
+        <!-- Vídeos serão carregados dinamicamente aqui -->
+      </div>
+    </div>
+
+    <!-- Overlay e Seção de Upload -->
+    <div class="upload-overlay" id="uploadOverlay">
+      <div class="upload-section">
+        <h5>Compartilhe sua Experiência</h5>
+        <input type="text" id="video-title" placeholder="Título do Vídeo" />
+        <input type="file" id="video-file" accept="video/*" />
+        <button id="analyze-button" onclick="analyzeVideo()">Analisar</button>
+        <button
+          id="upload-button"
+          style="display: none"
+          onclick="uploadVideo()"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+
+    <!-- Overlay para Reprodução de Vídeo -->
+    <div class="video-overlay" id="videoOverlay">
+      <div class="video-player">
+        <h5 id="video-player-title"></h5>
+        <video id="video-player-content" controls></video>
+        <button onclick="closeVideoPlayer()" style="margin-top: 15px">
+          Fechar
+        </button>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script de Interatividade -->
+    <script>
+      // Dados fictícios dos vídeos
+      let videos = [
+        {
+          id: 1,
+          thumbnail: "./img/banana.webp",
+          videoSrc: "./video/Melhor muda.mp4",
+          title: "Banana Sustentável: Como Plantar com Menos Impacto",
+          author: "João Silva",
+          duration: "0:30",
+          likes: 123,
+          comments: 45,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 2,
+          thumbnail: "./img/gado.jpg",
+          videoSrc: "./video/Mosca no gado..mp4",
+          title: "Controle Natural de Pragas no Gado",
+          author: "Maria Souza",
+          duration: "0:40",
+          likes: 89,
+          comments: 12,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 3,
+          thumbnail: "./img/tomate.jpeg",
+          videoSrc: "./video/Novo plantio de tomate..mp4",
+          title: "Tomate Sustentável: Irrigação e Cultivo Inteligente",
+          author: "Carlos Oliveira",
+          duration: "0:35",
+          likes: 67,
+          comments: 8,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 4,
+          thumbnail: "./img/soja.jpeg",
+          videoSrc: "./video/aumentadosoja.mp4",
+          title: "Soja Sustentável: Colheita e Manejo Ecológico",
+          author: "Ana Ferreira",
+          duration: "7:01",
+          likes: 98,
+          comments: 22,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 5,
+          thumbnail: "./img/milhoCutivo.jpg",
+          videoSrc: "./video/como plantar milho.mp4",
+          title: "Milho Sustentável: Plantio Eficiente e Natural",
+          author: "José Santos",
+          duration: "5:19",
+          likes: 112,
+          comments: 30,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 6,
+          thumbnail: "./img/morango.jpeg",
+          videoSrc: "./video/Dicas para plantar morango orgânicos",
+          title: "Morangos Orgânicos: Cultivo Sustentável e Saudável",
+          author: "Beatriz Lima",
+          duration: "9:10",
+          likes: 135,
+          comments: 41,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 7,
+          thumbnail: "./img/sefredo.jpeg",
+          videoSrc: "https://www.w3schools.com/html/mov_bbb.mp4",
+          title: "Café Sustentável: Segredos para um Cultivo Ecológico",
+          author: "Pedro Rocha",
+          duration: "2:14",
+          likes: 105,
+          comments: 27,
+          isLiked: false,
+          isCommented: false,
+        },
+        {
+          id: 8,
+          thumbnail: "./img/abacaxi.jpeg",
+          videoSrc: "./video/videoplayback.mp4",
+          title: "Abacaxi Sustentável: Cultivo Natural e Produtivo",
+          author: "Fernanda Costa",
+          duration: "7:40",
+          likes: 99,
+          comments: 19,
+          isLiked: false,
+          isCommented: false,
+        },
+      ];
+
+      // Função para renderizar os vídeos
+      function renderVideos(filteredVideos = videos) {
+        const videoList = document.getElementById("video-list");
+        videoList.innerHTML = filteredVideos
+          .map(
+            (video) => `
+          <div class="col-md-4">
+            <div class="video-card" onclick="playVideo(${video.id})">
+              <img src="${video.thumbnail}" alt="${video.title}" />
+              <h5>${video.title}</h5>
+              <p>Compartilhado por: ${video.author}</p>
+              <p>Duração: ${video.duration}</p>
+              <div class="actions">
+                <i class="fas fa-thumbs-up like ${
+                  video.isLiked ? "active" : ""
+                }" onclick="event.stopPropagation(); toggleLike(${
+              video.id
+            })"> ${video.likes}</i>
+                <i class="fas fa-comment comment ${
+                  video.isCommented ? "active" : ""
+                }" onclick="event.stopPropagation(); toggleComment(${
+              video.id
+            })"> ${video.comments}</i>
+                <i class="fas fa-share" onclick="event.stopPropagation(); shareVideo(${
+                  video.id
+                })"></i>
+              </div>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Função para reproduzir o vídeo
+      function playVideo(videoId) {
+        const video = videos.find((v) => v.id === videoId);
+        const videoOverlay = document.getElementById("videoOverlay");
+        const videoPlayerTitle = document.getElementById("video-player-title");
+        const videoPlayerContent = document.getElementById(
+          "video-player-content"
+        );
+
+        videoPlayerTitle.textContent = video.title;
+        videoPlayerContent.src = video.videoSrc;
+        videoOverlay.style.display = "flex";
+      }
+
+      // Função para fechar o player de vídeo
+      function closeVideoPlayer() {
+        const videoOverlay = document.getElementById("videoOverlay");
+        const videoPlayerContent = document.getElementById(
+          "video-player-content"
+        );
+        videoPlayerContent.pause(); // Pausa o vídeo ao fechar
+        videoPlayerContent.src = ""; // Limpa o src
+        videoOverlay.style.display = "none";
+      }
+
+      // Função para curtir/descurtir um vídeo
+      function toggleLike(videoId) {
+        const video = videos.find((v) => v.id === videoId);
+        video.isLiked = !video.isLiked;
+        video.likes += video.isLiked ? 1 : -1;
+        renderVideos();
+      }
+
+      // Função para adicionar/remover comentário
+      function toggleComment(videoId) {
+        const video = videos.find((v) => v.id === videoId);
+        video.isCommented = !video.isCommented;
+        video.comments += video.isCommented ? 1 : -1;
+        renderVideos();
+      }
+
+      // Função para compartilhar um vídeo
+      function shareVideo(videoId) {
+        const video = videos.find((v) => v.id === videoId);
+        alert(`Compartilhando o vídeo: ${video.title}`);
+      }
+
+      // Função para filtrar vídeos por duração
+      function filterByDuration(duration) {
+        let filteredVideos = videos;
+        if (duration === "short") {
+          filteredVideos = videos.filter((video) => {
+            const [min, sec] = video.duration.split(":");
+            return parseInt(min) < 5;
+          });
+        } else if (duration === "long") {
+          filteredVideos = videos.filter((video) => {
+            const [min, sec] = video.duration.split(":");
+            return parseInt(min) >= 5;
+          });
+        }
+        renderVideos(filteredVideos);
+      }
+
+      // Função para filtrar vídeos por pesquisa
+      function filterVideos() {
+        const searchTerm = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        const filteredVideos = videos.filter(
+          (video) =>
+            video.title.toLowerCase().includes(searchTerm) ||
+            video.author.toLowerCase().includes(searchTerm)
+        );
+        renderVideos(filteredVideos);
+      }
+
+      // Função para alternar a sidebar em dispositivos móveis
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        sidebar.classList.toggle("active");
+        mainContent.classList.toggle("active");
+      }
+
+      // Função para abrir a seção de upload
+      function openUploadSection() {
+        const uploadOverlay = document.getElementById("uploadOverlay");
+        uploadOverlay.style.display = "flex";
+      }
+
+      // Função para simular a análise do vídeo
+      function analyzeVideo() {
+        const analyzeButton = document.getElementById("analyze-button");
+        const uploadButton = document.getElementById("upload-button");
+
+        analyzeButton.disabled = true;
+        analyzeButton.innerHTML = '<div class="loading"></div>';
+
+        setTimeout(() => {
+          analyzeButton.style.display = "none";
+          uploadButton.style.display = "block";
+        }, 3000);
+      }
+
+      // Função para simular o upload de vídeo
+      function uploadVideo() {
+        const title = document.getElementById("video-title").value;
+        const file = document.getElementById("video-file").files[0];
+        if (title && file) {
+          const videoUrl = URL.createObjectURL(file);
+          videos.push({
+            id: videos.length + 1,
+            thumbnail: "https://via.placeholder.com/300x200", // Placeholder para novos vídeos
+            videoSrc: videoUrl,
+            title: title,
+            author: "Você",
+            duration: "0:00",
+            likes: 0,
+            comments: 0,
+            isLiked: false,
+            isCommented: false,
+          });
+          renderVideos();
+          alert(`Vídeo "${title}" enviado com sucesso!`);
+          closeUploadSection();
+        } else {
+          alert("Por favor, preencha o título e selecione um vídeo.");
+        }
+      }
+
+      // Função para fechar a seção de upload
+      function closeUploadSection() {
+        const uploadOverlay = document.getElementById("uploadOverlay");
+        uploadOverlay.style.display = "none";
+        document.getElementById("video-title").value = "";
+        document.getElementById("video-file").value = "";
+        const analyzeButton = document.getElementById("analyze-button");
+        const uploadButton = document.getElementById("upload-button");
+        analyzeButton.disabled = false;
+        analyzeButton.innerHTML = "Analisar";
+        analyzeButton.style.display = "block";
+        uploadButton.style.display = "none";
+      }
+
+      // Renderizar os vídeos ao carregar a página
+      renderVideos();
+    </script>
+  </body>
+</html>
